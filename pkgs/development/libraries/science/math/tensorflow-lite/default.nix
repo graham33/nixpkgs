@@ -1,174 +1,116 @@
 { stdenv
 , bash
 , abseil-cpp
+, cmake
+, eigen
 , fetchFromGitHub
 , fetchFromGitLab
 , fetchpatch
 , fetchurl
+, fetchzip
 , flatbuffers
 , lib
 , zlib
 }:
 let
-  tflite-eigen = fetchFromGitLab {
-    owner = "libeigen";
-    repo = "eigen";
-    rev = "3d9051ea84a5089b277c88dac456b3b1576bfa7f";
-    sha256 = "1y3f2jvimb5i904f4n37h23cv2pkdlbz8656s0kga1y7c0p50wif";
-  };
-
-  gemmlowp-src = fetchFromGitHub {
-    owner = "google";
-    repo = "gemmlowp";
-    rev = "fda83bdc38b118cc6b56753bd540caa49e570745";
-    sha256 = "1sbp8kmr2azwlvfbzryy1frxi99jhsh1nc93bdbxdf8zdgpv0kxl";
-  };
-
-  neon-2-sse-src = fetchFromGitHub {
-    owner = "intel";
-    repo = "ARM_NEON_2_x86_SSE";
-    rev = "1200fe90bb174a6224a525ee60148671a786a71f";
-    sha256 = "0fhxch711ck809dpq1myxz63jiiwfcnxvj45ww0kg8s0pqpn5kv6";
+  cpuinfo-src = fetchFromGitHub {
+    owner = "pytorch";
+    repo = "cpuinfo";
+    rev = "5e63739504f0f8e18e941bd63b2d6d42536c7d90";
+    sha256 = "sha256-5no9LkQIIOIidvhera5lIbnOUkcZQtW4nIUqXSLnWHA=";
   };
 
   farmhash-src = fetchFromGitHub {
     owner = "google";
     repo = "farmhash";
     rev = "816a4ae622e964763ca0862d9dbd19324a1eaf45";
-    sha256 = "1mqxsljq476n1hb8ilkrpb39yz3ip2hnc7rhzszz4sri8ma7qzp6";
+    sha256 = "sha256-5n58VEUxa/K//jAfZqG4cXyfxrp50ogWDNYcgiXVHdc=";
   };
 
-  fft2d-src = fetchurl {
-    url = "http://www.kurims.kyoto-u.ac.jp/~ooura/fft2d.tgz";
-    sha256 = "ada7e99087c4ed477bfdf11413f2ba8db8a840ba9bbf8ac94f4f3972e2a7cec9";
+  fft2d-src = fetchzip {
+    url = "https://storage.googleapis.com/mirror.tensorflow.org/github.com/petewarden/OouraFFT/archive/v1.0.tar.gz";
+    sha256 = "sha256-mkG6jWuMVzCB433qk2wW/HPA9vp/LivPTDa2c0hFir4=";
   };
 
-  fp16-src = fetchFromGitHub {
+  gemmlowp-src = fetchFromGitHub {
+    owner = "google";
+    repo = "gemmlowp";
+    rev = "fda83bdc38b118cc6b56753bd540caa49e570745";
+    sha256 = "sha256-tE+w72sfudZXWyMxG6CGMqXYswve57/cpvwrketEd+k=";
+  };
+
+  neon2sse-src = fetchzip {
+    url = "https://storage.googleapis.com/mirror.tensorflow.org/github.com/intel/ARM_NEON_2_x86_SSE/archive/a15b489e1222b2087007546b4912e21293ea86ff.tar.gz";
+    sha256 = "sha256-299ZptvdTmCnIuVVBkrpf5ZTxKPwgcGUob81tEI91F0=";
+  };
+
+  psimd-src = fetchFromGitHub {
     owner = "Maratyszcza";
-    repo = "FP16";
-    rev = "4dfe081cf6bcd15db339cf2680b9281b8451eeb3";
-    sha256 = "06a8dfl3a29r93nxpp6hpywsajz5d555n3sqd3i6krybb6swnvh7";
+    repo = "psimd";
+    rev = "072586a71b55b7f8c584153d223e95687148a900";
+    sha256 = "sha256-lV+VZi2b4SQlRYrhKx9Dxc6HlDEFz3newvcBjTekupo=";
   };
 
   ruy-src = fetchFromGitHub {
     owner = "google";
     repo = "ruy";
-    rev = "23633b37099b614a2f836ef012cafc8087fdb98c";
-    sha256 = "14k9hz6ss8qy8nsajk6lrq25f6qxrldxky31ijw0dpqnfnnswrx4";
+    rev = "841ea4172ba904fe3536789497f9565f2ef64129";
+    sha256 = "sha256-KtduRl9HUxUhNdgm+M8nU55zwbt1P+QRRLoePFRwh9g=";
   };
 
-  cpuinfo-src = fetchFromGitHub {
-    owner = "pytorch";
-    repo = "cpuinfo";
-    rev = "5916273f79a21551890fd3d56fc5375a78d1598d";
-    sha256 = "0q6760xdxsg18acdv8vq3yrq7ksr7wsm8zbyan01zf2khnb6fw4x";
-  };
+  # https://github.com/tensorflow/tensorflow/issues/57658
 in
 stdenv.mkDerivation rec {
   pname = "tensorflow-lite";
-  version = "2.5.0";
+  version = "2.11.1";
 
   src = fetchFromGitHub {
     owner = "tensorflow";
     repo = "tensorflow";
     rev = "v${version}";
-    sha256 = "1jdw2i1rq06zqd6aabh7bbm0avsg4pygnfmd7gviv0blhih9054l";
+    sha256 = "sha256-q59cUW6613byHk4LGl+sefO5czLSWxOrSyLbJ1pkNEY=";
   };
 
+  preConfigure = ''
+    cd tensorflow/lite
+  '';
+
   patches = [
-    # TODO: remove on the next version bump
-    (fetchpatch {
-      name = "include-schema-conversion-utils-source.patch";
-      url = "https://github.com/tensorflow/tensorflow/commit/f3c4f4733692150fd6174f2cd16438cfaba2e5ab.patch";
-      sha256 = "0zx4hbz679kn79f30159rl1mq74dg45cvaawii0cyv48z472yy4k";
-    })
-    # TODO: remove on the next version bump
-    (fetchpatch {
-      name = "cxxstandard-var.patch";
-      url = "https://github.com/tensorflow/tensorflow/commit/9b128ae4200e10b4752f903492d1e7d11957ed5c.patch";
-      sha256 = "1q0izdwdji5fbyqll6k4dmkzfykyvvz5cvc6hysdj285nkn2wy6h";
-    })
+  ];
+
+  nativeBuildInputs = [
+    cmake
   ];
 
   buildInputs = [ zlib flatbuffers ];
 
-  dontConfigure = true;
+  cmakeFlags = [
+    "-DTFLITE_ENABLE_INSTALL=ON"
+    "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON"
+    "-Dabsl_DIR=${abseil-cpp}/lib/cmake/absl"
+    "-DEigen3_DIR=${eigen}/share/eigen3/cmake"
+    "-DFlatbuffers_DIR=${flatbuffers}/lib/cmake/flatbuffers"
+    "-DFETCHCONTENT_SOURCE_DIR_CPUINFO=${cpuinfo-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_FARMHASH=${farmhash-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_FFT2D=${fft2d-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_FP16_HEADERS=${fp16_headers-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_GEMMLOWP=${gemmlowp-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_NEON2SSE=${neon2sse-src}"
+    "-DFETCHCONTENT_SOURCE_DIR_RUY=${ruy-src}"
+    "-DCLOG_SOURCE_DIR=${cpuinfo-src}/deps/clog"
+    "-DPTHREADPOOL_SOURCE_DIR=${pthreadpool-src}"
+    "-DPSIMD_SOURCE_DIR=${psimd-src}"
+  ];
 
-  postPatch = ''
-    substituteInPlace ./tensorflow/lite/tools/make/Makefile \
-      --replace /bin/bash ${bash}/bin/bash \
-      --replace /bin/sh ${bash}/bin/sh
-  '';
+  #dontConfigure = true;
 
-  makefile = "tensorflow/lite/tools/make/Makefile";
+  # postPatch = ''
+  #   substituteInPlace ./tensorflow/lite/tools/make/Makefile \
+  #     --replace /bin/bash ${bash}/bin/bash \
+  #     --replace /bin/sh ${bash}/bin/sh
+  # '';
 
-  preBuild =
-    let
-      includes =
-        lib.concatMapStringsSep
-          " "
-          (subdir: "-I $PWD/tensorflow/lite/tools/make/downloads/${subdir}")
-          [
-            "neon_2_sse"
-            "gemmlowp"
-            "absl"
-            "fp16/include"
-            "farmhash/src"
-            "ruy"
-            "cpuinfo"
-            "cpuinfo/src"
-            "cpuinfo/include"
-            "cpuinfo/deps/clog/include"
-            "eigen"
-          ];
-    in
-    ''
-      # enter the vendoring lair of doom
-
-      prefix="$PWD/tensorflow/lite/tools/make/downloads"
-
-      mkdir -p "$prefix"
-
-      tar xzf ${fft2d-src} -C "$prefix"
-
-      ln -s ${ruy-src} "$prefix/ruy"
-      ln -s ${gemmlowp-src} "$prefix/gemmlowp"
-      ln -s ${neon-2-sse-src} "$prefix/neon_2_sse"
-      ln -s ${farmhash-src} "$prefix/farmhash"
-      ln -s ${cpuinfo-src} "$prefix/cpuinfo"
-      ln -s ${fp16-src} "$prefix/fp16"
-      ln -s ${tflite-eigen} "$prefix/eigen"
-
-      # tensorflow lite is using the *source* of flatbuffers
-      ln -s ${flatbuffers.src} "$prefix/flatbuffers"
-
-      # tensorflow lite expects to compile abseil into `libtensorflow-lite.a`
-      ln -s ${abseil-cpp.src} "$prefix/absl"
-
-      # set CXXSTANDARD=c++17 here because abseil-cpp in nixpkgs is set as
-      # such and would be used in dependents like libedgetpu
-      buildFlagsArray+=(
-        INCLUDES="-I $PWD ${includes}"
-        CXXSTANDARD="-std=c++17"
-        TARGET_TOOLCHAIN_PREFIX=""
-        -j$NIX_BUILD_CORES
-        all)
-    '';
-
-  installPhase = ''
-    mkdir "$out"
-
-    # copy the static lib and binaries into the output dir
-    cp -r ./tensorflow/lite/tools/make/gen/linux_${stdenv.hostPlatform.uname.processor}/{bin,lib} "$out"
-
-    find ./tensorflow/lite -type f -name '*.h' | while read f; do
-      path="$out/include/''${f/.\//}"
-      install -D "$f" "$path"
-
-      # remove executable bit from headers
-      chmod -x "$path"
-    done
-  '';
+  #makefile = "tensorflow/lite/tools/make/Makefile";
 
   meta = with lib; {
     description = "An open source deep learning framework for on-device inference.";
@@ -176,28 +118,5 @@ stdenv.mkDerivation rec {
     license = licenses.asl20;
     maintainers = with maintainers; [ cpcloud ];
     platforms = [ "x86_64-linux" "aarch64-linux" ];
-    knownVulnerabilities = [
-      # at least some of
-      "CVE-2023-27579"
-      "CVE-2023-25801"
-      "CVE-2023-25676"
-      "CVE-2023-25675"
-      "CVE-2023-25674"
-      "CVE-2023-25673"
-      "CVE-2023-25671"
-      "CVE-2023-25670"
-      "CVE-2023-25669"
-      "CVE-2023-25668"
-      "CVE-2023-25667"
-      "CVE-2023-25665"
-      "CVE-2023-25666"
-      "CVE-2023-25664"
-      "CVE-2023-25663"
-      "CVE-2023-25662"
-      "CVE-2023-25660"
-      "CVE-2023-25659"
-      "CVE-2023-25658"
-      # and many many more
-    ];
   };
 }

@@ -497,6 +497,8 @@ with pkgs;
 
   coordgenlibs  = callPackage ../development/libraries/coordgenlibs { };
 
+  cpuinfo  = callPackage ../development/libraries/cpuinfo { };
+
   copilot-cli = callPackage ../tools/admin/copilot-cli { };
 
   cp437 = callPackage ../tools/misc/cp437 { };
@@ -4001,6 +4003,8 @@ with pkgs;
   tensorflow-lite = callPackage ../development/libraries/science/math/tensorflow-lite { };
 
   tiny-cuda-nn = callPackage ../development/libraries/science/math/tiny-cuda-nn { };
+
+  xnnpack = callPackage ../development/libraries/science/math/xnnpack { };
 
   tezos-rust-libs = callPackage ../development/libraries/tezos-rust-libs { };
 
