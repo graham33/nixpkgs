@@ -17,7 +17,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "libdyson_rest";
     inherit version;
-    hash = "sha256-cy4yp2WruJYl8P+t/RUclNQGv+4mlLVEv7go8PzIjec=";
+    hash = "sha256-cy4yp2WriWJl8P+t/RUclNQGv+Jqm1RPso8Q+8yI0+c=";
   };
 
   build-system = [
