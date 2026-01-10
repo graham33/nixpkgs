@@ -8,13 +8,13 @@
 buildHomeAssistantComponent rec {
   owner = "libdyson-wg";
   domain = "dyson_local";
-  version = "1.7.0";
+  version = "1.5.7";
 
   src = fetchFromGitHub {
     inherit owner;
     repo = "ha-dyson";
     tag = "v${version}";
-    hash = "sha256-C5UDK0st0IR3PRsbiG9M9ZfGpDrPYqBcPw/8/2iWJXw=";
+    hash = "sha256-V5RCepikTDrjZwi6MfRislpV2F9jR1MqwWxTq0GPBp4=";
   };
 
   dependencies = [
