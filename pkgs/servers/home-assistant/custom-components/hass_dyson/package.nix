@@ -2,29 +2,29 @@
   lib,
   buildHomeAssistantComponent,
   fetchFromGitHub,
-  libdyson-neon,
+  libdyson-rest,
 }:
 
 buildHomeAssistantComponent rec {
-  owner = "libdyson-wg";
-  domain = "dyson_local";
-  version = "1.5.7";
+  owner = "cmgrayb";
+  domain = "hass_dyson";
+  version = "0.26.0";
 
   src = fetchFromGitHub {
     inherit owner;
-    repo = "ha-dyson";
+    repo = "hass-dyson";
     tag = "v${version}";
-    hash = "sha256-V5RCepikTDrjZwi6MfRislpV2F9jR1MqwWxTq0GPBp4=";
+    hash = "sha256-g9lM046nZ9pv0yxL9GPTriU1SYbVAISLIF2z9K5nsTw=";
   };
 
   dependencies = [
-    libdyson-neon
+    libdyson-rest
   ];
 
   meta = {
-    changelog = "https://github.com/libdyson-wg/ha-dyson/releases/tag/v${version}";
+    changelog = "https://github.com/cmgrayb/hass-dyson/releases/tag/v${version}";
     description = "Home Assistant custom integration for Wi-Fi connected Dyson devices";
-    homepage = "https://github.com/libdyson-wg/ha-dyson";
+    homepage = "https://github.com/cmgrayb/hass-dyson";
     maintainers = with lib.maintainers; [ graham33 ];
     license = lib.licenses.mit;
   };
