@@ -8,13 +8,13 @@
 buildHomeAssistantComponent rec {
   owner = "cmgrayb";
   domain = "hass_dyson";
-  version = "0.26.0";
+  version = "0.33.0";
 
   src = fetchFromGitHub {
     inherit owner;
     repo = "hass-dyson";
     tag = "v${version}";
-    hash = "sha256-g9lM046nZ9pv0yxL9GPTriU1SYbVAISLIF2z9K5nsTw=";
+    hash = "sha256-FBcxBsKaLhfwd3Of/3B+N3Ez/MoQ55IwvznPref3ET4=";
   };
 
   dependencies = [

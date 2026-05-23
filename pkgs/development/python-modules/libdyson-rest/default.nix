@@ -11,13 +11,13 @@
 
 buildPythonPackage rec {
   pname = "libdyson-rest";
-  version = "0.11.0";
+  version = "0.12.1";
   pyproject = true;
 
   src = fetchPypi {
     pname = "libdyson_rest";
     inherit version;
-    hash = "sha256-cy4yp2WriWJl8P+t/RUclNQGv+Jqm1RPso8Q+8yI0+c=";
+    hash = "sha256-JDiTClRpT+c3+UqvSUdHE6mhyNaR7xg6t5P0JemPh3U=";
   };
 
   build-system = [
